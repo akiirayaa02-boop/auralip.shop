@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURALIP - Tienda Oficial</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f9f9f9; color: #333; }
+        header, main, footer { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; margin-bottom: 20px; }
+        h1, h2 { color: #2c3e50; }
+        .producto { border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0 20px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        form { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AURALIP</h1>
+        <p>Tu tienda de cosmética de confianza.</p>
+    </header>
+
+    <main>
+        <h2>Nuestros Productos</h2>
+        
+        <div class="producto">
+            <h3>Set de Cosméticos AURALIP</h3>
+            <p>Precio: 64,99 €</p>
+            <button onclick="ejecutarCompra('price_XXXXXXXXX')">Comprar Ahora</button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+
+        <h2>Contáctanos</h2>
+        <form name="contacto" method="POST" data-netlify="true">
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required />
+            </div>
+            
+            <div>
+                <label for="email">Correo electrónico:</label>
+                <input type="email" id="email" name="email" required />
+            </div>
+            
+            <div>
+                <label for="mensaje">Mensaje:</label>
+                <textarea id="mensaje" name="mensaje" required></textarea>
+            </div>
+            
+            <button type="submit">Enviar mensaje</button>
+        </form>
+    </main>
+
+    <script>
+        // Función que se comunica con tu Netlify Function de Stripe
+        async function procesarPago(itemsDelCarrito) {
+            try {
+                const response = await fetch('/.netlify/functions/create-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: itemsDelCarrito })
+                });
+
+                const data = await response.json();
+
+                if (data.url) {
+                    window.location.href = data.url; // Redirige a Stripe Checkout
+                } else {
+                    alert("Hubo un error al generar el pago: " + (data.error || 'Desconocido'));
+                }
+            } catch (err) {
+                console.error("Error de conexión:", err);
+                alert("Error de conexión con el servidor.");
+            }
+        }
+
+        // Simulación de carrito al hacer clic en comprar
+        function ejecutarCompra(priceId) {
+            const carritoEjemplo = [
+                { price: priceId, quantity: 1 } 
+            ];
+            procesarPago(carritoEjemplo);
+        }
+    </script>
+
+</body>
+</html>
